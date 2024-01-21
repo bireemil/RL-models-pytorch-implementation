@@ -2,6 +2,10 @@
 __pycache__/
 *.py[cod]
 *$py.class
+#model checkpoints
+tmp/
+runs/
+plots/
 
 # C extensions
 *.so
