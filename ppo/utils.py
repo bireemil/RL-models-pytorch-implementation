@@ -49,7 +49,7 @@ class PPOMemory:
 
 class ActorNetwork(nn.Module) :
     def __init__(self, n_actions, input_dims, alpha,
-                 fc1_dims=256, fc2_dims = 256, chkpt_dir = r'tmp\ppo'):
+                 fc1_dims=256, fc2_dims = 256, chkpt_dir = 'tmp\\ppo'):
         super(ActorNetwork, self).__init__()
 
         self.checkpoint_file = os.path.join(chkpt_dir, 'actor_torch_ppo.ckpt' )
@@ -81,7 +81,7 @@ class ActorNetwork(nn.Module) :
 
 class CriticNetwork(nn.Module) :
     def __init__(self, input_dims, alpha,
-                 fc1_dims=256, fc2_dims=256,chkpt_dir=r'tmp\ppo') :
+                 fc1_dims=256, fc2_dims=256,chkpt_dir='tmp\\ppo') :
         super(CriticNetwork, self).__init__()
 
         self.checkpoint_file = os.path.join(chkpt_dir, 'critic_torch_ppo.ckpt')
@@ -185,7 +185,7 @@ class Agent:
                 actor_loss = T.max(-weighted_probs, -weighted_clipped_probs).mean()
 
                 returns = advantage[batch] * values[batch]
-                critic_loss = (returns-critic_value) **2
+                critic_loss = (returns-critic_value).abs()
                 critic_loss = critic_loss.mean()
                 entropy_loss = entropy.mean()
 

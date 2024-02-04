@@ -6,24 +6,29 @@ from matplotlib import pyplot as plt
 from utils import Agent
 from torch.utils.tensorboard import SummaryWriter
 
-writer = SummaryWriter()
+
 
 if __name__ == '__main__' :
 
     os.makedirs('plots', exist_ok=True)
     os.makedirs(os.path.join('tmp','ppo'), exist_ok=True)
 
-    env = gym.make('LunarLander-v2',render_mode="human")
+    env = gym.make('LunarLander-v2')
     N=1024
     batch_size = 64
     n_epochs = 4
     alpha = 0.00025
+    gamma=0.999
+    gae_lambda=0.98
+    fc1_dims=128
+    fc2_dims=128
     agent = Agent(n_actions=env.action_space.n, batch_size=batch_size,
                   alpha=alpha, n_epochs=n_epochs,
                   input_dims=env.observation_space.shape,
-                  policy_clip=0.2, gamma=0.999, gae_lambda=0.98,
-                  fc1_dims=128, fc2_dims=128)
-    n_games = 5000
+                  policy_clip=0.2, gamma=gamma, gae_lambda=gae_lambda,
+                  fc1_dims=fc1_dims, fc2_dims=fc2_dims)
+    # agent.load_models()
+    n_games = 50000
     figure_file = 'plots/cartpole.png'
 
     best_score = env.reward_range[0]
@@ -32,6 +37,8 @@ if __name__ == '__main__' :
     learn_iters = 0
     avg_score = 0
     n_steps = 0
+
+    writer = SummaryWriter(os.path.join("runs",f"{N}_{batch_size}_{n_epochs}_{alpha}_{gamma}_{gae_lambda}_{fc1_dims}_{fc2_dims}_l1"))
 
     for i in range(n_games):
         ep_steps = 0
@@ -44,7 +51,7 @@ if __name__ == '__main__' :
             action, prob, val = agent.choose_action(observation)
             observation_, reward, done, info, _ = env.step(action)
             ep_steps+=1
-            env.render()
+            # env.render()
             n_steps +=1
             score += reward
             agent.remember(observation, action, prob,val, reward, done)
@@ -53,7 +60,7 @@ if __name__ == '__main__' :
                 learn_iters +=1
 
             observation = observation_
-            if ep_steps>200 :
+            if ep_steps>500 :
                 done = True
         score_history .append(score)
         avg_score = np.mean(score_history[-100:])
